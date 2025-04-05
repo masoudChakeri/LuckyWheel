@@ -1,0 +1,21 @@
+{
+  "name": "@lucky-wheel-monorepo/wheel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@lucky-wheel-monorepo/wheel": "file:",
+    "@nestjs/typeorm": "^11.0.0",
+    "pg": "^8.14.0",
+    "typeorm": "^0.3.21"
+  }
+}

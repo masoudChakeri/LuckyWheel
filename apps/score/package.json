@@ -1,0 +1,23 @@
+{
+  "name": "@lucky-wheel-monorepo/score",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@lucky-wheel-monorepo/score": "file:",
+    "@nestjs/schedule": "^5.0.1",
+    "@nestjs/typeorm": "^11.0.0",
+    "ioredis": "^5.6.0",
+    "pg": "^8.14.0",
+    "typeorm": "^0.3.21"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@lucky-wheel-monorepo/auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@lucky-wheel-monorepo/auth": "file:",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/typeorm": "^11.0.0",
+    "bcryptjs": "^3.0.2",
+    "nestjs-typeorm-paginate": "^4.1.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.14.0",
+    "typeorm": "^0.3.21"
+  }
+}

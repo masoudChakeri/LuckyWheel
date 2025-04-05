@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package get_products_details;
+
+service GetProductsDetailsService {
+  rpc GetProductsDetails (GetProductsDetailsRequest) returns (GetProductsDetailsResponse);
+}
+
+message GetProductsDetailsRequest {
+  repeated string product_ids = 1;
+}
+
+message GetProductsDetailsResponse {
+  repeated ProductDetails product_details = 1;
+}
+
+message ProductDetails {
+  string product_id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  double discount_percentage = 5;
+}

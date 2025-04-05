@@ -1,0 +1,239 @@
+version: '3.9'
+
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+    env_file:
+      - ./apps/auth/.env
+    ports:
+      - 3000:3000
+    restart: always
+    depends_on:
+      auth_db:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    container_name: auth_service
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/auth`) || PathPrefix(`/user`)"
+      - "traefik.http.routers.auth.entrypoints=web"
+      - "traefik.http.services.auth.loadbalancer.server.port=3000"
+  auth_db:
+    image: postgres
+    container_name: auth_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 46971b06-5abd-4b61-b777-a0ae7cceb9b1
+      POSTGRES_DB: authdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+
+  score:
+    build:
+      context: .
+      dockerfile: ./apps/score/Dockerfile
+    env_file:
+      - ./apps/score/.env
+    ports:
+      - 3001:3000
+    restart: always
+    depends_on:
+      score_redis:
+        condition: service_started
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.score.rule=PathPrefix(`/score`)"
+      - "traefik.http.routers.score.entrypoints=web"
+      - "traefik.http.services.score.loadbalancer.server.port=3000"
+  score_redis:
+    image: redis
+    container_name: score_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "always"]
+  score_db:
+    image: postgres
+    container_name: score_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: a45d3872-4d2b-4939-947f-4bc6b4051623
+      POSTGRES_DB: scoredb
+    ports:
+      - "5434:5432"
+    volumes:
+      - score_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+
+  product:
+    build:
+      context: .
+      dockerfile: ./apps/product/Dockerfile
+    env_file:
+      - ./apps/product/.env
+    ports:
+      - 3002:3000
+    restart: always
+    depends_on:
+      product_db:
+        condition: service_healthy
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.product.rule=PathPrefix(`/product`)"
+      - "traefik.http.routers.product.entrypoints=web"
+      - "traefik.http.services.product.loadbalancer.server.port=3000"
+  product_db:
+    image: postgres
+    container_name: product_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: b4639fec-705d-458c-8f5a-26b4773ef8e8
+      POSTGRES_DB: productdb
+    ports:
+      - "5435:5432"
+    volumes:
+      - product_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+
+
+  cart:
+    build:
+      context: .
+      dockerfile: ./apps/cart/Dockerfile
+    env_file:
+      - ./apps/cart/.env
+    ports:
+      - 3003:3000
+    restart: always
+    depends_on:
+      cart_db:
+        condition: service_healthy
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cart.rule=PathPrefix(`/cart`)"
+      - "traefik.http.routers.cart.entrypoints=web"
+      - "traefik.http.services.cart.loadbalancer.server.port=3000"
+  cart_db:
+    image: postgres
+    container_name: cart_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cca696b9-bb9a-4b78-a8f2-5d3505882cae
+      POSTGRES_DB: cartdb
+    ports:
+      - "5436:5432"
+    volumes:
+      - cart_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+
+
+  wheel:
+    build:
+      context: .
+      dockerfile: ./apps/wheel/Dockerfile
+    env_file:
+      - ./apps/wheel/.env
+    ports:
+      - 3004:3000
+    restart: always
+    depends_on:
+      wheel_db:
+        condition: service_healthy
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wheel.rule=PathPrefix(`/wheel`)"
+      - "traefik.http.routers.wheel.entrypoints=web"
+      - "traefik.http.services.wheel.loadbalancer.server.port=3000"
+  wheel_db:
+    image: postgres
+    container_name: wheel_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 878f961e-d7fe-4ae2-b781-fc62959be9a4
+      POSTGRES_DB: wheeldb
+    ports:
+      - "5437:5432"
+    volumes:
+      - wheel_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # AMQP port for RabbitMQ
+      - "15672:15672"  # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    command:
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:8000  
+    ports:
+      - "8000:8000"     
+      - "8080:8080"     
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=web"
+
+
+volumes:
+  auth_postgres_data:
+  product_postgres_data:
+  cart_postgres_data:
+  score_postgres_data:
+  wheel_postgres_data:
+  rabbitmq_data:

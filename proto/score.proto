@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package score;
+
+service ScoreService {
+  rpc AddScore (AddScoreRequest) returns (AddScoreResponse);
+
+  rpc GetScore (GetScoreRequest) returns (GetScoreResponse);
+}
+
+message AddScoreRequest {
+  string user_id = 1;
+  int32 score = 2;
+  string token = 3;
+}
+
+message AddScoreResponse {
+  string user_id = 1;
+  int32 score = 2;
+}
+
+message GetScoreRequest {
+  string user_id = 1;
+}
+
+message GetScoreResponse {
+  string user_id = 1;
+  int32 score = 2;
+}
